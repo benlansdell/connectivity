@@ -1,4 +1,4 @@
-# connectivity
+# Connectivity
 GLM tools for inferring connectivity.
 
 Currently implements:
