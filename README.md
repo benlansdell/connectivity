@@ -1,4 +1,4 @@
-# Connectivity
+# Neural connectivity tools
 GLM tools for inferring connectivity in neural spike train data
 
 Data assumed to be given as matrix of binned spikes
