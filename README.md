@@ -1,5 +1,7 @@
 # Connectivity
-GLM tools for inferring connectivity.
+GLM tools for inferring connectivity in neural spike train data
+
+Data assumed to be given as matrix of binned spikes
 
 Currently implements:
 * Standard GLM framework
