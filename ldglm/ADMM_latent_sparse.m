@@ -26,11 +26,15 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 	K = kron(ones(T, 1), eye(n));										%(n*T x n)
 	AHinv = inv(H*A*A*H' + alpha*eye(n*k)); 							%(n*k x n*k)
 
+	count = 0;
+
 	while (r_p > eps_p) & (r_d > eps_d)
 		%%Update Y using ADMM
 		%
 		%Vectorize Y for some of this computation
 		Yv = reshape(Y, [], 1);
+		gradL_rho = ones(size(Yv));
+		inv_laplaceL_rho = speye(size(Yv,1));
 		while gradL_rho'*inv_laplaceL_rho*gradL_rho > eps
 			%Gradient in matrix form
 			gradL_rho = -gradloglikelihood(S, Y) + rho*Y*A - (rho*Z + rho*Ds*H*A-Lambda)*A;
@@ -44,6 +48,8 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 			delta = reshape(d,n,T);
 			inv_laplaceL_rho = Dinv + Dinv*K*inv(T/rho*eye(n) - diag(delta*ones(T,1)))*K'*Dinv;
 			Yv = Yv - inv_laplaceL_rho*gradL_rho;
+			count = count + 1;
+			display(['Count: ' num2str(count)]);
 		end
 		%Return to matrix form
 		Y = reshape(Yv, n, T);
