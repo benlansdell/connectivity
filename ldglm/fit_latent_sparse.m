@@ -30,12 +30,12 @@ for k = 1:K
 	H((k-1)*N+1:k*N,k:end) = S(:,1:(end-k+1));
 end
 
-rho = 1;
-alpha = 1;
-gamma = 1;
+rho = 10;
+alpha = 10;
 
 %Supposedly the only free parameter...
 lambda = 1;
+gamma = 1;
 
 %Run!
 [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma);
