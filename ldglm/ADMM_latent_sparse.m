@@ -1,11 +1,11 @@
 function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 
 	%Tolerances
-	eps = 1e-3;
-	eps_rel = 1e-3;
-	eps_abs = 1e-3;
-	eps_relD = 1e-3;
-	eps_absD = 1e-3;
+	eps = 1e-9;
+	eps_rel = 1e-9;
+	eps_abs = 1e-9;
+	eps_relD = 1e-9;
+	eps_absD = 1e-9;
 
 	%Initialize
 	n = size(S, 1);						%Number of neurons
@@ -29,11 +29,10 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 	totalcount = 1;
 
 	while (r_p > eps_p) & (r_d > eps_d)
-		r_p 
-		eps_p 
-		r_d 
-		eps_d 
-		display(['Iteration: ' num2str(totalcount)])
+		display(['ADMM iteration ' num2str(totalcount)])
+		display(['-- current error tolerances (primal, dual)'])
+		display(['   r_p > eps_p, r_d > eps_d ']) 
+		display(['   ' num2str(r_p) ' > ' num2str(eps_p) ', ' num2str(r_d) ' > ' num2str(eps_d)]) 
 		%%Update Y using ADMM
 		%
 		%Vectorize Y for some of this computation
@@ -94,17 +93,16 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 			E = Ep;
 			count = count + 1;
 			display(['-- update D count: ' num2str(count)]);
-			r_pD
-			eps_pD
-			r_dD
-			eps_dD
 		end
 
 		%%Update Lambda
 		display('-- updating Lambda')
 		[U, Sigma, V] = svd((Y-Ds*H)*A+Lambda/rho);
 		Zp = U*softthreshold(Sigma, lambda*sqrt(n*T)/rho)*V';
-		Lambda = Lambda + rho*(Y*A-Zp);
+		%Posted update in Pfau 2013:
+		%Lambda = Lambda + rho*(Y*A-Zp);
+		%Perhaps a more sensible update: (?)
+		Lambda = Lambda + rho*((Y-Ds*H)*A-Zp);
 
 		%%Determine stopping criteria
 		r_p = norm((Y-Ds*H)*A-Zp, 'fro');
@@ -117,6 +115,9 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 
 		totalcount = totalcount + 1;
 	end 
+	display(['Finished with (primal, dual):'])
+	display(['   r_p > eps_p, r_d > eps_d: ']) 
+	display(['   ' num2str(r_p) ' > ' num2str(eps_p) ', ' num2str(r_d) ' > ' num2str(eps_d)]) 
 end
 
 %These assume an exponential non-linearity
