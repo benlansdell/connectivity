@@ -11,7 +11,7 @@ load(connectivity_path);
 
 binsize = 0.005; %in seconds
 K = 3; %length of spike history filter, in units of binsize
-ntrunc = 60;
+ntrunc = 40;
 
 %Truncate to a smaller set of neurons
 spiketimes = spiketimes(1:ntrunc);
@@ -45,40 +45,44 @@ end
 rho =   1;
 alpha = 1;
 
-%Supposedly the only free parameters...
-lambda = 1e-6;  	%low rank penalty
-gamma = 1e-6;	%sparsity penalty
+exps = -7:2:3;
 
-%Run!
-[Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma);
+for l = exps 
+	for g = exps
+		lambda = l;  	%low rank penalty
+		gamma  = g;		%sparsity penalty
+		[Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma);
+		save(['./worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '.mat'], 'Y', 'Ds', 'K', 'N', 'J')
 
-%Compare connectivity matrices
-
-%for k = 1:K
-for k = 1:1
-	D = Ds(:,((k-1)*N+1):(k*N));
-	for ii = 1:N
-		D(ii,ii) = 0;
+		%Compare connectivity matrices
+		Dtot = zeros(ntrunc, ntrunc)
+		for k = 1:K
+			D = Ds(:,((k-1)*N+1):(k*N));
+			for ii = 1:N
+				D(ii,ii) = 0;
+			end
+			Dtot = Dtot + abs(D);
+		end
+		a = reshape(J(1:N,1:N), 1, []);
+		b = reshape(Dtot, 1, []);
+		c = corr(a',b')^2
+		figure 
+		plot(a, b, '.k')
+		xlabel('actual')
+		ylabel('estimated')
+		title(['Real vs predicted connectivity r^2: ' num2str(c)])
+		saveplot(gcf, './worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '_connectivity_.eps')		
+		%Plot Y vs spike raster for sample unit 
+		clf
+		sptimes = find(S(ntrunc,:)>0);
+		hold on 
+		for i = 1:length(sptimes)
+			plot(sptimes(i), 0, 'k.')
+		end
+		plot(exp(Y(n,:)))
+		xlabel('time')
+		ylabel('rate')
+		xlim([0 400])
+		saveplot(gcf, './worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '_y.eps')
 	end
-	a = reshape(J(1:N,1:N), 1, []);
-	b = reshape(D, 1, []);
-	c = corr(a',b')^2
-	figure 
-	plot(a, b, '.k')
-	xlabel('actual')
-	ylabel('estimated')
-	title(['Real vs predicted connectivity r^2: ' num2str(c)])
 end
-
-%Plot Y vs spike raster for sample unit 
-figure 
-clf
-sptimes = find(S(ntrunc,:)>0);
-hold on 
-for i = 1:length(sptimes)
-	plot(sptimes(i), 0, 'k.')
-end
-plot(exp(Y(n,:)))
-xlabel('time')
-ylabel('rate')
-xlim([0 400])
