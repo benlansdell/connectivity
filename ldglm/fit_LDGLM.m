@@ -51,7 +51,7 @@ for l = exps
 	for g = exps
 		lambda = l;  	%low rank penalty
 		gamma  = g;		%sparsity penalty
-		[Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma);
+		[Y, Ds] = ADMM_LDGLM(S, H, rho, lambda, alpha, gamma);
 		save(['./worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '.mat'], 'Y', 'Ds', 'K', 'N', 'J')
 
 		%Compare connectivity matrices
@@ -71,7 +71,7 @@ for l = exps
 		xlabel('actual')
 		ylabel('estimated')
 		title(['Real vs predicted connectivity r^2: ' num2str(c)])
-		saveplot(gcf, './worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '_connectivity_.eps')		
+		saveplot(gcf, ['./worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '_connectivity_.eps'])		
 		%Plot Y vs spike raster for sample unit 
 		clf
 		sptimes = find(S(ntrunc,:)>0);
@@ -83,6 +83,6 @@ for l = exps
 		xlabel('time')
 		ylabel('rate')
 		xlim([0 400])
-		saveplot(gcf, './worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '_y.eps')
+		saveplot(gcf, ['./worksheets/gamma_lambda_sweep/gamma_' num2str(g) '_lambda_' num2str(l) '_y.eps'])
 	end
 end
