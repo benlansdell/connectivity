@@ -12,9 +12,8 @@ description: >
 
 Tools to infer connectivity between neural spike trains. Uses primarily generalized linear models (GLMs):
 
-baseurl: "connectivity/" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://benlansdell.github.io/connectivity" # the base hostname & protocol for your site
 github_username:  benlansdell
-
 # Build settings
 markdown: kramdown
