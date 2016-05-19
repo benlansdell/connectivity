@@ -12,10 +12,10 @@ description: >
 
 Tools to infer connectivity between neural spike trains. Uses primarily generalized linear models (GLMs):
 
-production_url: "http://benlansdell.github.io/connectivity"
-url: "http://benlansdell.github.io/connectivity"
+#production_url: "http://benlansdell.github.io/connectivity"
+#url: "http://benlansdell.github.io/connectivity"
 baseurl: "http://benlansdell.github.io/connectivity"
-BASE_PATH: "http://benlansdell.github.io/connectivity"
+#BASE_PATH: "http://benlansdell.github.io/connectivity"
 github_username:  benlansdell
 # Build settings
 markdown: kramdown
