@@ -18,3 +18,4 @@ addpath_recurse([homedir 'lansdell/projects/connectivity/scripts/']);
 addpath_recurse([homedir 'lansdell/projects/connectivity/te/']);
 
 addpath([homedir 'lansdell/matlab/te/']);
+addpath_recurse([homedir 'lansdell/matlab/pop_spike_dyn/']);

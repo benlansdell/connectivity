@@ -1,11 +1,11 @@
 function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 
 	%Tolerances
-	eps = 1e-9;
-	eps_rel = 1e-9;
-	eps_abs = 1e-9;
-	eps_relD = 1e-9;
-	eps_absD = 1e-9;
+	eps = 1e-6;
+	eps_rel = 1e-3;
+	eps_abs = 1e-6;
+	eps_relD = 1e-3;
+	eps_absD = 1e-6;
 
 	%Initialize
 	n = size(S, 1);						%Number of neurons
@@ -22,13 +22,13 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 	eps_d = 0;
 
 	%Mean centering operation (note it is self-adjoint and idempotent)
-	A = eye(T) - ones(T,T)/T;											%(T x T)
+	A = speye(T) - ones(T,T)/T;											%(T x T)
 	K = kron(ones(T, 1), eye(n));										%(n*T x n)
 	AHinv = inv(H*A*A*H' + alpha*eye(n*k)); 							%(n*k x n*k)
 
 	totalcount = 1;
 
-	while (r_p > eps_p) & (r_d > eps_d)
+	while (r_p > eps_p) | (r_d > eps_d)
 		display(['ADMM iteration ' num2str(totalcount)])
 		display(['-- current error tolerances (primal, dual)'])
 		display(['   r_p > eps_p, r_d > eps_d ']) 
