@@ -28,6 +28,9 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 
 	totalcount = 1;
 
+	%Crude ADMM init (already done above...)
+	Y = log(max(S,1));
+
 	while (r_p > eps_p) | (r_d > eps_d)
 		display(['ADMM iteration ' num2str(totalcount)])
 		display(['-- current error tolerances (primal, dual)'])
@@ -102,7 +105,7 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 		%Posted update in Pfau 2013:
 		%Lambda = Lambda + rho*(Y*A-Zp);
 		%Perhaps a more sensible update: (?)
-		Lambda = Lambda + rho*((Y-Ds*H)*A-Zp);
+		Lambda_ = Lambda + rho*((Y-Ds*H)*A-Zp);
 
 		%%Determine stopping criteria
 		r_p = norm((Y-Ds*H)*A-Zp, 'fro');
@@ -112,6 +115,16 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 
 		%Update Z
 		Z = Zp;
+		Lambda = Lambda_;
+
+		% heuristics to adjust dual gradient ascent rate to balance primal and
+		% dual convergence. Seems to work pretty well: we almost always
+		% converge in under 100 iterations.
+		if r_p > 10*r_d
+		    rho = 2*rho;
+		elseif r_d > 10*r_p
+		    rho = rho/2;
+		end
 
 		totalcount = totalcount + 1;
 	end 

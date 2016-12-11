@@ -1,6 +1,6 @@
 %Load spiking data
 T = 6000;
-N = 10;
+N = 50;
 fn_in = ['./sims/izhik_T_' num2str(T) '_' num2str(N) '_10.mat'];
 load(fn_in);
 
