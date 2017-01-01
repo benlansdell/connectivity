@@ -1,5 +1,7 @@
 function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 
+	maxiter = 100;
+
 	%Tolerances
 	eps = 1e-6;
 	eps_rel = 1e-3;
@@ -43,7 +45,7 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 		gradL_rho = ones(size(Yv));
 		newtonupdate = ones(size(Yv));
 		count = 0;
-		while gradL_rho'*newtonupdate > eps
+		while (gradL_rho'*newtonupdate > eps) & (count < maxiter)
 			%Gradient in matrix form
 			gradL_rho = -gradloglikelihood(S, Y) + rho*Y*A - (rho*Z + rho*Ds*H*A-Lambda)*A;
 			%Vectorized gradient
@@ -83,7 +85,7 @@ function [Y, Ds] = ADMM_latent_sparse(S, H, rho, lambda, alpha, gamma)
 		Gamma = zeros(size(E));
 		r_pD = 1; eps_pD = 0; r_dD = 1; eps_dD = 0;
 		count = 0;
-		while (r_pD > eps_pD) & (r_dD > eps_dD)
+		while (r_pD > eps_pD) & (r_dD > eps_dD) & (count < maxiter)
 			for ii = 1:n
 				Ds(ii,:) = ((Y(ii,:)*A - Z(ii,:) + Lambda(ii,:)/rho)*A*H' + alpha*E(ii,:) - Gamma(ii,:))*AHinv;
 			end
