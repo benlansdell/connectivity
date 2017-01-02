@@ -15,8 +15,7 @@ function spikes = spnet_ld_input(fn_out, T, N, n)
 
 	rand('seed',1);
 	M=max(ceil(0.1*N),2);  % number of synapses per neuron
-	D=20;     
-	             % maximal conduction delay 
+	D=20;                  % maximal conduction delay 
 	% excitatory neurons   % inhibitory neurons      % total number 
 	Ne=ceil(0.8*N);                Ni=N-Ne; 
 	a=[0.02*ones(Ne,1);    0.1*ones(Ni,1)];
@@ -31,7 +30,7 @@ function spikes = spnet_ld_input(fn_out, T, N, n)
 	L = 6;
 	ep = 1;
 	ep_C = 5;
-	%%Choose some random stable eigenvalues and eigenvectors and generate 
+	%%Choose some random stable dynamical system
 	A = rand(L,L,nC);
 	for idx = 1:nC
 		[V,lambda] = eig(A(:,:,idx));
@@ -57,36 +56,35 @@ function spikes = spnet_ld_input(fn_out, T, N, n)
 	% Take special care not to have multiple connections between neurons
 	delays = cell(N,D);
 	for i=1:Ne
-			p=randperm(N);
-			post(i,:)=p(1:M);
-			for j=1:M
-					delay = ceil(D*rand);
-					delays{i, delay}(end+1) = j;  % Assign random exc delays
-			end;
-	end;
+		p=randperm(N);
+		post(i,:)=p(1:M);
+		for j=1:M
+			delay = ceil(D*rand);
+			delays{i, delay}(end+1) = j;  % Assign random exc delays
+		end
+	end
+
 	for i=Ne+1:N
-			p=randperm(Ne);
-			post(i,:)=p(1:M);
-			delays{i,1}=1:M;                    % all inh delays are 1 ms.
-	end;
+		p=randperm(Ne);
+		post(i,:)=p(1:M);
+		delays{i,1}=1:M;                    % all inh delays are 1 ms.
+	end
 	
 	s=[exw*ones(Ne,M);-inw*ones(Ni,M)];         % synaptic weights
 	sd=zeros(N,M);                          % their derivatives
 	
-	%Generate 
-
 	%Only needed for STDP
 	% Make links at postsynaptic targets to the presynaptic weights
 	pre = cell(N,1);
 	aux = cell(N,1);
 	for i=1:Ne
-			for j=1:D
-					for k=1:length(delays{i,j})
-							pre{post(i, delays{i, j}(k))}(end+1) = N*(delays{i, j}(k)-1)+i;
-							aux{post(i, delays{i, j}(k))}(end+1) = N*(D-1-j)+i; % takes into account delay
-					end;
-			end;
-	end;
+		for j=1:D
+			for k=1:length(delays{i,j})
+				pre{post(i, delays{i, j}(k))}(end+1) = N*(delays{i, j}(k)-1)+i;
+				aux{post(i, delays{i, j}(k))}(end+1) = N*(D-1-j)+i; % takes into account delay
+			end
+		end
+	end
 	
 	STDP = zeros(N,1001+D);
 	v = -65*ones(N,1);                      % initial values
@@ -126,17 +124,17 @@ function spikes = spnet_ld_input(fn_out, T, N, n)
 				I(ind)=I(ind)+s(firings(k,2), del)';
 				sd(firings(k,2),del)=sd(firings(k,2),del)-1.2*STDP(ind,t+D)';
 				k=k-1;
-			end;
+			end
 			v=v+0.5*((0.04*v+5).*v+140-u+I);    % for numerical 
 			v=v+0.5*((0.04*v+5).*v+140-u+I);    % stability time 
 			u=u+a.*(0.2*v-u);                   % step is 0.5 ms
 			STDP(:,t+D+1)=0.95*STDP(:,t+D);     % tau = 20 ms
-		end;
+		end
 		%plot(firings(:,1),firings(:,2),'.');
 		%axis([0 1000 0 N]); drawnow;
 		STDP(:,1:D+1)=STDP(:,1001:1001+D);
 		ind = find(firings(:,1) > 1001-D);
-		firings=[-D 0;firings(ind,1)-1000,firings(ind,2)];
+		firings=[-D 0; firings(ind,1)-1000,firings(ind,2)];
 
 		%Comment out to ignore STDP
 		s(1:Ne,:)=max(0,min(sm,0.01+s(1:Ne,:)+sd(1:Ne,:)));
