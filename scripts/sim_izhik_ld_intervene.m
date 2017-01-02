@@ -6,7 +6,7 @@ parfor idx = 1:length(Ns)
 	for j = 1:length(ns)
 		n = ns(j);
 		N = Ns(idx);
-		fn_out = ['./sims/ld_intervene_izhik_T_' num2str(T) '_' num2str(N) '_10.mat'];
+		fn_out = ['./sims/ld_intervene_izhik_T_' num2str(T) '_N_' num2str(N) '_n_' num2str(n) '.mat'];
 		if (n < N) && exist(fn_out, 'file') ~= 2
 			spnet_ld_intervene(fn_out, T, N, n);
 		end
