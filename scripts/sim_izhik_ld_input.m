@@ -7,7 +7,7 @@ parfor idx = 1:length(Ns)
 		n = ns(j);
 		N = Ns(idx);
 		fn_out = ['./sims/ld_input_izhik_T_' num2str(T) '_' num2str(N) '_10.mat'];
-		if (n < N) and ~(exist(fn_out, 'file') == 2)
+		if (n < N) && exist(fn_out, 'file') ~= 2
 			spnet_ld_input(fn_out, T, N, n);
 		end
 	end
